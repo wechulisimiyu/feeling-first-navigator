@@ -5,6 +5,7 @@ import { getSeverityLevel, getSeverityInfo, getRecommendation } from '@/lib/asse
 import RecommendationCard from '@/components/recommendation/RecommendationCard';
 import { getCurrentUser, createSession } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
+import { Mood } from '@/lib/types';
 
 const ResultPage: React.FC = () => {
   const location = useLocation();
@@ -46,14 +47,20 @@ const ResultPage: React.FC = () => {
       const severityLevel = getSeverityLevel(assessmentType, score);
       const recommendation = getRecommendation(assessmentType, severityLevel);
       
+      // Map string mood values to Mood enum values
+      let mood: Mood;
+      if (assessmentType === 'PHQ9') {
+        mood = Mood.LOW_MOOD;
+      } else if (assessmentType === 'GAD7') {
+        mood = Mood.ANXIOUS;
+      } else {
+        mood = Mood.UNUSUAL_THOUGHTS;
+      }
+      
       // Save the completed session
       createSession({
         user_id: currentUser.id,
-        mood: assessmentType === 'PHQ9' 
-          ? 'low_mood' 
-          : assessmentType === 'GAD7' 
-            ? 'anxious' 
-            : 'unusual_thoughts',
+        mood: mood,
         assessment_type: assessmentType,
         assessment_score: score,
         severity_level: severityLevel,
