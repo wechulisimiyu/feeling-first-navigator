@@ -85,3 +85,39 @@ export const getCurrentUser = (): User | null => {
 export const setCurrentUser = (user: User | null): void => {
   saveToStorage("currentUser", user);
 };
+
+// Simulated email function
+export const sendEmailToProfessional = (
+  professionalId: string, 
+  patientName: string, 
+  assessmentType: string,
+  score: number,
+  severityLevel: number
+): { success: boolean; message: string } => {
+  try {
+    const professional = getProfessionalById(professionalId);
+    if (!professional) {
+      return { 
+        success: false, 
+        message: "Professional not found" 
+      };
+    }
+    
+    // In a real app, this would send an actual email
+    // This is just a simulation for the MVP
+    console.log(`Simulated email sent to ${professional.name} about patient ${patientName}`);
+    console.log(`Assessment: ${assessmentType}, Score: ${score}, Severity: ${severityLevel}`);
+    
+    // Return success response
+    return { 
+      success: true, 
+      message: `Email notification sent to ${professional.name}` 
+    };
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return { 
+      success: false, 
+      message: "Failed to send email notification" 
+    };
+  }
+};

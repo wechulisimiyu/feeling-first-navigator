@@ -1,9 +1,9 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getSeverityLevel, getSeverityInfo, getRecommendation } from '@/lib/assessment';
 import RecommendationCard from '@/components/recommendation/RecommendationCard';
-import { getCurrentUser, createSession } from '@/lib/storage';
+import { getCurrentUser, createSession, sendEmailToProfessional, getProfessionals } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
 import { Mood } from '@/lib/types';
 
@@ -11,6 +11,7 @@ const ResultPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [emailSent, setEmailSent] = useState<boolean>(false);
   
   const state = location.state as {
     assessmentType: 'PHQ9' | 'GAD7' | 'PSQ';
@@ -68,11 +69,68 @@ const ResultPage: React.FC = () => {
         timestamp: new Date().toISOString(),
         responses,
       });
+      
+      // Check if score indicates a severe level
+      const isSevere = (
+        (assessmentType === 'PHQ9' && severityLevel >= 3) || // Moderately severe or Severe
+        (assessmentType === 'GAD7' && severityLevel >= 2) || // Moderate or Severe anxiety
+        (assessmentType === 'PSQ' && severityLevel >= 1)     // Medium or High risk
+      );
+      
+      // If severe, send simulated email notification
+      if (isSevere && !emailSent) {
+        const professionals = getProfessionals();
+        let matchedProfessional;
+        
+        // Match professional based on assessment type
+        if (assessmentType === 'PHQ9') {
+          // Find a clinical psychologist or psychiatrist
+          matchedProfessional = professionals.find(p => 
+            p.specialty.includes("Psychologist") || p.specialty.includes("Psychiatrist")
+          );
+        } else if (assessmentType === 'GAD7') {
+          // Find an anxiety specialist if available, otherwise any counselor
+          matchedProfessional = professionals.find(p => 
+            p.specialty.includes("Counselor") || p.specialty.includes("Therapist")
+          );
+        } else {
+          // For PSQ, prefer psychiatrist
+          matchedProfessional = professionals.find(p => 
+            p.specialty.includes("Psychiatrist") || p.specialty.includes("Neuropsychologist")
+          );
+        }
+        
+        // Default to first professional if no match found
+        const professionalId = matchedProfessional?.id || professionals[0].id;
+        
+        const result = sendEmailToProfessional(
+          professionalId,
+          currentUser.username,
+          assessmentType,
+          score,
+          severityLevel
+        );
+        
+        if (result.success) {
+          setEmailSent(true);
+          toast({
+            title: "Professional Notified",
+            description: result.message,
+            variant: "default",
+          });
+        } else {
+          toast({
+            title: "Notification Failed",
+            description: result.message,
+            variant: "destructive",
+          });
+        }
+      }
     };
     
     saveSessionData();
     
-  }, [state, navigate, toast]);
+  }, [state, navigate, toast, emailSent]);
   
   if (!state?.assessmentType || state?.score === undefined) {
     return <div>Loading...</div>;
@@ -92,6 +150,7 @@ const ResultPage: React.FC = () => {
         severityLabel={severityLabel}
         severityColor={severityColor}
         recommendation={recommendation}
+        emailSent={emailSent}
       />
     </div>
   );

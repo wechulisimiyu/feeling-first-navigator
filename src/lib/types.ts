@@ -1,4 +1,3 @@
-
 // Mood Enum
 export enum Mood {
   OKAY = "okay",
@@ -129,24 +128,38 @@ export const RECOMMENDATIONS = {
 export const DEFAULT_PROFESSIONALS: Professional[] = [
   {
     id: "prof-001",
-    name: "Dr. Emma Thompson",
+    name: "Dr. Aisha Osman",
     specialty: "Clinical Psychologist",
-    location: "Online",
-    contact: "emma.thompson@example.com"
+    location: "Nairobi, Kenya",
+    contact: "aisha.osman@mentalhealthea.org"
   },
   {
     id: "prof-002",
-    name: "Michael Chen, LMHC",
-    specialty: "Licensed Mental Health Counselor",
-    location: "Online",
-    contact: "michael.chen@example.com"
+    name: "Michael Kwizera, MHC",
+    specialty: "Mental Health Counselor",
+    location: "Kigali, Rwanda",
+    contact: "michael.kwizera@rwandamentalhealth.org"
   },
   {
     id: "prof-003",
-    name: "Dr. James Wilson",
+    name: "Dr. Fatima Ibrahim",
     specialty: "Psychiatrist",
-    location: "Online",
-    contact: "james.wilson@example.com"
+    location: "Dar es Salaam, Tanzania",
+    contact: "fatima.ibrahim@mhtz.org"
+  },
+  {
+    id: "prof-004",
+    name: "Solomon Abebe, MSW",
+    specialty: "Social Worker",
+    location: "Addis Ababa, Ethiopia",
+    contact: "solomon.abebe@ethmentalhealth.com"
+  },
+  {
+    id: "prof-005",
+    name: "Dr. Grace Mugisha",
+    specialty: "Neuropsychologist",
+    location: "Kampala, Uganda",
+    contact: "grace.mugisha@ugmentalhealth.org"
   }
 ];
 

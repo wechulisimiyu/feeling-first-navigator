@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { AlertCircle } from 'lucide-react';
 
 interface RecommendationCardProps {
   assessmentType: 'PHQ9' | 'GAD7' | 'PSQ';
@@ -11,6 +12,7 @@ interface RecommendationCardProps {
   severityLabel: string;
   severityColor: string;
   recommendation: string;
+  emailSent?: boolean;
 }
 
 const RecommendationCard: React.FC<RecommendationCardProps> = ({
@@ -19,7 +21,8 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   severityLevel,
   severityLabel,
   severityColor,
-  recommendation
+  recommendation,
+  emailSent = false
 }) => {
   const getAssessmentName = () => {
     switch (assessmentType) {
@@ -28,6 +31,13 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
       case 'PSQ': return 'Unusual Experiences (PSQ)';
     }
   };
+
+  // Determine if score is considered severe
+  const isSevere = (
+    (assessmentType === 'PHQ9' && severityLevel >= 3) || // Moderately severe or Severe
+    (assessmentType === 'GAD7' && severityLevel >= 2) || // Moderate or Severe anxiety
+    (assessmentType === 'PSQ' && severityLevel >= 1)     // Medium or High risk
+  );
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -47,6 +57,26 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
             {severityLabel}
           </span>
         </div>
+        
+        {isSevere && (
+          <div className={`p-3 rounded-md ${emailSent ? 'bg-blue-50' : 'bg-amber-50'} mt-2`}>
+            <div className="flex items-start gap-2">
+              <AlertCircle className={`h-5 w-5 mt-0.5 ${emailSent ? 'text-blue-500' : 'text-amber-500'}`} />
+              <div>
+                <h4 className="font-medium text-sm">
+                  {emailSent 
+                    ? 'Professional Notification Sent' 
+                    : 'Immediate Professional Assistance Recommended'}
+                </h4>
+                <p className="text-xs mt-1">
+                  {emailSent 
+                    ? 'Based on your score, a mental health professional has been notified and may reach out to you.' 
+                    : 'Based on your score, we strongly recommend immediate consultation with a mental health professional.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         
         <div className="mt-6">
           <h3 className="font-medium mb-2">Recommendation:</h3>
